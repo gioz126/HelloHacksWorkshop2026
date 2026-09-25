@@ -2,12 +2,12 @@ const express = require('express')
 const cors = require('cors')
 
 const app = express()
-const PORT = process.env.PORT || 3000
+const PORT = process.env.PORT || 5001
 
 app.use(cors())
 app.use(express.json())
 
-// Example: GET http://localhost:3000/api/type/fire
+// Example: GET http://localhost:5001/api/type/fire
 // `idOrName` can be a type name (fire) or ID (10).
 app.get('/api/type/:idOrName', async (req, res) => {
   const type = encodeURIComponent(req.params.idOrName.trim().toLowerCase())

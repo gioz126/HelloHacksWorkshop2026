@@ -1,7 +1,22 @@
 import { useState } from 'react'
 
+function formatTypeList(types) {
+  return types.map((type) => type[0].toUpperCase() + type.slice(1)).join(', ')
+}
+
+function formatMatchup(matchup) {
+  if (matchup.error) {
+    return matchup.error
+  }
+
+  const typesThatResist = formatTypeList(matchup.half_damage_to)
+  const superEffectiveMoves = formatTypeList(matchup.double_damage_from)
+
+  return `To defend: ${typesThatResist} Pokémon take half damage from the opponent's attacks. To attack: ${superEffectiveMoves} moves deal double damage to the opponent.`
+}
+
 function App() {
-  const [selectedType, setSelectedType] = useState('')
+  const [matchup, setMatchup] = useState(null)
 
 
   const types = [
@@ -11,15 +26,28 @@ function App() {
     { name: 'Ground', color: 'bg-amber-600 hover:bg-amber-700 focus-visible:ring-amber-400' },
   ]
 
-  function getMatchup(type) {
-  // API CALL WILL GO HERE, AND WE WILL RETURN THE RESPONSE
-  return `Fake API response: You are fighting a ${type}-type Pokémon.`;
-    }
+  async function getMatchup(type) {
+    try {
+      const response = await fetch(
+        `http://localhost:5001/api/type/${encodeURIComponent(type)}`,
+      )
+      const data = await response.json()
 
-  function handleTypeClick(type) {
-     const response = getMatchup(type);
-     setSelectedType(response);
+      if (!response.ok) {
+        throw new Error(data.error || 'Unable to retrieve matchup data.')
+      }
+
+      return data
+    } catch (error) {
+      console.error('Could not retrieve matchup data:', error)
+      return { error: 'Could not retrieve matchup data. Is the backend running?' }
     }
+  }
+
+  async function handleTypeClick(type) {
+    const response = await getMatchup(type)
+    setMatchup(response)
+  }
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-100 px-6 py-12 text-slate-900">
@@ -46,9 +74,9 @@ function App() {
             ))}
           </div>
 
-          {selectedType && (
-            <p className="mt-5 text-sm text-slate-600" aria-live="polite">
-              {selectedType}
+          {matchup && (
+            <p className="mt-5 text-sm leading-6 text-slate-600" aria-live="polite">
+              {formatMatchup(matchup)}
             </p>
           )}
         </div>
