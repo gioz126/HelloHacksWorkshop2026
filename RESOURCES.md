@@ -147,7 +147,7 @@ Add these buttons:
 Run this in your terminal:
 
 ```bash
-npm install tailwindcss@tailwindcss/vite
+npm install tailwindcss @tailwindcss/vite
 ```
 
 ---
